@@ -5,6 +5,7 @@
 [ext_resource type="Resource" uid="uid://0lfgg1jehpmp" path="res://data/map_layout.tres" id="3_layout"]
 [ext_resource type="Script" uid="uid://bdugg3wasiaih" path="res://scripts/map/map_decoration.gd" id="4_decor"]
 [ext_resource type="Script" uid="uid://c1m2blyr35vok" path="res://scripts/map/player_marker.gd" id="5_marker"]
+[ext_resource type="FontFile" uid="uid://dugkosgq0y7rf" path="res://ui/xilosa_.ttf" id="6_nakos"]
 [ext_resource type="Script" uid="uid://doyxd4eqlesdj" path="res://scripts/map/pause_menu.gd" id="6_pause"]
 
 [sub_resource type="StyleBoxFlat" id="Style_frame"]
@@ -81,13 +82,15 @@ theme_override_constants/separation = 48
 [node name="HpLabel" type="Label" parent="TopBar/HBox" unique_id=1398650081]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.93, 0.86, 0.7, 1)
-theme_override_font_sizes/font_size = 20
+theme_override_fonts/font = ExtResource("6_nakos")
+theme_override_font_sizes/font_size = 26
 text = "Vida: 100/100"
 
 [node name="AmmoLabel" type="Label" parent="TopBar/HBox" unique_id=474073990]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.93, 0.86, 0.7, 1)
-theme_override_font_sizes/font_size = 20
+theme_override_fonts/font = ExtResource("6_nakos")
+theme_override_font_sizes/font_size = 26
 text = "Munição: 6/6"
 
 [node name="EventPopup" type="Control" parent="." unique_id=2085363646]
@@ -127,7 +130,8 @@ theme_override_constants/separation = 18
 [node name="Title" type="Label" parent="EventPopup/Center/Panel/VBox" unique_id=69133167]
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.86, 0.35, 1)
-theme_override_font_sizes/font_size = 34
+theme_override_fonts/font = ExtResource("6_nakos")
+theme_override_font_sizes/font_size = 40
 text = "Evento"
 horizontal_alignment = 1
 
@@ -135,7 +139,8 @@ horizontal_alignment = 1
 custom_minimum_size = Vector2(390, 0)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.93, 0.86, 0.7, 1)
-theme_override_font_sizes/font_size = 20
+theme_override_fonts/font = ExtResource("6_nakos")
+theme_override_font_sizes/font_size = 26
 text = "Um evento acontece aqui..."
 horizontal_alignment = 1
 autowrap_mode = 3
@@ -183,16 +188,21 @@ theme_override_constants/separation = 16
 [node name="Title" type="Label" parent="PauseMenu/Center/Panel/VBox" unique_id=1692190993]
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.86, 0.35, 1)
-theme_override_font_sizes/font_size = 32
+theme_override_fonts/font = ExtResource("6_nakos")
+theme_override_font_sizes/font_size = 40
 text = "Pausa"
 horizontal_alignment = 1
 
 [node name="ContinueButton" type="Button" parent="PauseMenu/Center/Panel/VBox" unique_id=359292958]
 custom_minimum_size = Vector2(260, 52)
 layout_mode = 2
+theme_override_fonts/font = ExtResource("6_nakos")
+theme_override_font_sizes/font_size = 32
 text = "Continuar"
 
 [node name="MenuButton" type="Button" parent="PauseMenu/Center/Panel/VBox" unique_id=1509577185]
 custom_minimum_size = Vector2(260, 52)
 layout_mode = 2
+theme_override_fonts/font = ExtResource("6_nakos")
+theme_override_font_sizes/font_size = 32
 text = "Voltar ao Menu"

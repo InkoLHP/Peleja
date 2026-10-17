@@ -1,11 +1,12 @@
-[gd_scene format=3]
+[gd_scene format=3 uid="uid://3g0vtfv3acha"]
 
-[ext_resource type="Script" path="res://scripts/ending_screen.gd" id="1_end"]
+[ext_resource type="Script" uid="uid://j4dtuj8xsku" path="res://scripts/ending_screen.gd" id="1_end"]
 [ext_resource type="Theme" uid="uid://c5b8nlqewc6bd" path="res://ui/menu_theme.tres" id="2_theme"]
-[ext_resource type="Texture2D" path="res://art/bg_ending.png" id="3_bg"]
+[ext_resource type="Texture2D" uid="uid://dx70o2vwfuwix" path="res://art/bg_ending.png" id="3_bg"]
 [ext_resource type="PackedScene" path="res://scenes/characters/cangaceiro_sprite.tscn" id="4_hero"]
+[ext_resource type="FontFile" uid="uid://dugkosgq0y7rf" path="res://ui/xilosa_.ttf" id="5_qa3ag"]
 
-[node name="Ending" type="Control"]
+[node name="Ending" type="Control" unique_id=352880914]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -15,7 +16,7 @@ grow_vertical = 2
 theme = ExtResource("2_theme")
 script = ExtResource("1_end")
 
-[node name="Background" type="TextureRect" parent="."]
+[node name="Background" type="TextureRect" parent="." unique_id=1863540997]
 texture_filter = 1
 layout_mode = 1
 anchors_preset = 15
@@ -28,10 +29,10 @@ texture = ExtResource("3_bg")
 expand_mode = 1
 stretch_mode = 6
 
-[node name="Hero" parent="." instance=ExtResource("4_hero")]
+[node name="Hero" parent="." unique_id=991002328 instance=ExtResource("4_hero")]
 position = Vector2(640, 576)
 
-[node name="Texts" type="VBoxContainer" parent="."]
+[node name="Texts" type="VBoxContainer" parent="." unique_id=2076544530]
 layout_mode = 1
 anchors_preset = 10
 anchor_right = 1.0
@@ -41,34 +42,35 @@ grow_horizontal = 2
 mouse_filter = 2
 theme_override_constants/separation = 6
 
-[node name="Title" type="Label" parent="Texts"]
+[node name="Title" type="Label" parent="Texts" unique_id=1834955384]
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.86, 0.45, 1)
 theme_override_colors/font_outline_color = Color(0.1, 0.04, 0.1, 1)
 theme_override_constants/outline_size = 10
-theme_override_font_sizes/font_size = 64
-text = "HECATOMBE PURIFICADA!"
+theme_override_fonts/font = ExtResource("5_qa3ag")
+theme_override_font_sizes/font_size = 68
+text = "CORRUPÇÃO PURIFICADA!"
 horizontal_alignment = 1
 
-[node name="Subtitle" type="Label" parent="Texts"]
+[node name="Subtitle" type="Label" parent="Texts" unique_id=2083100705]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.98, 0.9, 0.95, 1)
 theme_override_colors/font_outline_color = Color(0.1, 0.04, 0.1, 1)
 theme_override_constants/outline_size = 6
-theme_override_font_sizes/font_size = 28
+theme_override_fonts/font = ExtResource("5_qa3ag")
+theme_override_font_sizes/font_size = 30
 text = "O Encourado caiu e o sertão respira de novo. Obrigado por jogar!"
 horizontal_alignment = 1
 
-[node name="Stats" type="Label" parent="Texts"]
+[node name="Stats" type="Label" parent="Texts" unique_id=675539680]
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.9, 0.7, 1)
 theme_override_colors/font_outline_color = Color(0.1, 0.04, 0.1, 1)
 theme_override_constants/outline_size = 5
 theme_override_font_sizes/font_size = 22
-text = ""
 horizontal_alignment = 1
 
-[node name="Buttons" type="VBoxContainer" parent="."]
+[node name="Buttons" type="VBoxContainer" parent="." unique_id=964233926]
 layout_mode = 1
 anchors_preset = 3
 anchor_left = 1.0
@@ -83,14 +85,18 @@ grow_horizontal = 0
 grow_vertical = 0
 theme_override_constants/separation = 14
 
-[node name="AgainButton" type="Button" parent="Buttons"]
+[node name="AgainButton" type="Button" parent="Buttons" unique_id=472563027]
 custom_minimum_size = Vector2(300, 54)
 layout_mode = 2
 mouse_default_cursor_shape = 2
+theme_override_fonts/font = ExtResource("5_qa3ag")
+theme_override_font_sizes/font_size = 30
 text = "Nova Jornada"
 
-[node name="MenuButton" type="Button" parent="Buttons"]
+[node name="MenuButton" type="Button" parent="Buttons" unique_id=1338818302]
 custom_minimum_size = Vector2(300, 54)
 layout_mode = 2
 mouse_default_cursor_shape = 2
+theme_override_fonts/font = ExtResource("5_qa3ag")
+theme_override_font_sizes/font_size = 30
 text = "Voltar ao menu"
