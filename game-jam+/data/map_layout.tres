@@ -1,0 +1,65 @@
+[gd_resource type="Resource" script_class="MapLayout" format=3 uid="uid://0lfgg1jehpmp"]
+
+[ext_resource type="Script" uid="uid://dlk6ssjqqsnev" path="res://scripts/map/map_layout.gd" id="1_layout"]
+[ext_resource type="Script" uid="uid://bpvd16lra8uku" path="res://scripts/map/map_node_data.gd" id="2_node"]
+
+[sub_resource type="Resource" id="Node_0"]
+script = ExtResource("2_node")
+type = "start"
+position = Vector2(640, 655)
+next_ids = Array[int]([1])
+
+[sub_resource type="Resource" id="Node_1"]
+script = ExtResource("2_node")
+id = 1
+position = Vector2(640, 565)
+next_ids = Array[int]([2])
+
+[sub_resource type="Resource" id="Node_2"]
+script = ExtResource("2_node")
+id = 2
+type = "event"
+position = Vector2(640, 475)
+next_ids = Array[int]([3, 4])
+
+[sub_resource type="Resource" id="Node_3"]
+script = ExtResource("2_node")
+id = 3
+position = Vector2(480, 385)
+next_ids = Array[int]([5])
+
+[sub_resource type="Resource" id="Node_4"]
+script = ExtResource("2_node")
+id = 4
+type = "rest"
+position = Vector2(800, 385)
+next_ids = Array[int]([6])
+
+[sub_resource type="Resource" id="Node_5"]
+script = ExtResource("2_node")
+id = 5
+type = "event"
+position = Vector2(480, 295)
+next_ids = Array[int]([7])
+
+[sub_resource type="Resource" id="Node_6"]
+script = ExtResource("2_node")
+id = 6
+position = Vector2(800, 295)
+next_ids = Array[int]([7])
+
+[sub_resource type="Resource" id="Node_7"]
+script = ExtResource("2_node")
+id = 7
+position = Vector2(640, 205)
+next_ids = Array[int]([8])
+
+[sub_resource type="Resource" id="Node_8"]
+script = ExtResource("2_node")
+id = 8
+type = "boss"
+position = Vector2(640, 112)
+
+[resource]
+script = ExtResource("1_layout")
+nodes = [SubResource("Node_0"), SubResource("Node_1"), SubResource("Node_2"), SubResource("Node_3"), SubResource("Node_4"), SubResource("Node_5"), SubResource("Node_6"), SubResource("Node_7"), SubResource("Node_8")]

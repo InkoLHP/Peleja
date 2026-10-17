@@ -1,0 +1,24 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/combat/placeholder_character.gd" id="1_char"]
+[ext_resource type="Texture2D" path="res://art/cangaceiro.png" id="2_tex"]
+
+[node name="CangaceiroSprite" type="Node2D"]
+script = ExtResource("1_char")
+idle_bob = 3.0
+idle_period = 0.85
+idle_sway = 0.015
+forward_sign = 1.0
+step_distance = 48.0
+
+[node name="Shadow" type="Polygon2D" parent="."]
+color = Color(0.04, 0.02, 0.05, 0.4)
+polygon = PackedVector2Array(80.0, 0.0, 76.1, 4.9, 64.7, 9.4, 47.0, 12.9, 24.7, 15.2, 0.0, 16.0, -24.7, 15.2, -47.0, 12.9, -64.7, 9.4, -76.1, 4.9, -80.0, 0.0, -76.1, -4.9, -64.7, -9.4, -47.0, -12.9, -24.7, -15.2, -0.0, -16.0, 24.7, -15.2, 47.0, -12.9, 64.7, -9.4, 76.1, -4.9)
+
+[node name="Body" type="Node2D" parent="."]
+
+[node name="Art" type="Sprite2D" parent="Body"]
+texture_filter = 1
+scale = Vector2(4, 4)
+texture = ExtResource("2_tex")
+offset = Vector2(0, -32)

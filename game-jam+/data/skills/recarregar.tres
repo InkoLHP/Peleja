@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="SkillData" format=3]
+
+[ext_resource type="Script" path="res://scripts/combat/skill_data.gd" id="1_skill"]
+
+[resource]
+script = ExtResource("1_skill")
+effect = "reload_ammo"
+display_name = "Recarregar"
+description = "Enche o bacamarte de novo."
+ap_cost = 1
+needs_target = false

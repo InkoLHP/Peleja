@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="SkillData" format=3]
+
+[ext_resource type="Script" path="res://scripts/combat/skill_data.gd" id="1_skill"]
+
+[resource]
+script = ExtResource("1_skill")
+effect = "none"
+display_name = "Atacar"
+description = "Uma peixeira no lombo da criatura."
+ap_cost = 1
+damage = 10
+damage_variance = 2
+malandragem_gain = 15
+needs_target = true

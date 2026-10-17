@@ -1,0 +1,32 @@
+[gd_resource type="Resource" script_class="EnemyData" format=3]
+
+[ext_resource type="Script" path="res://scripts/combat/enemy_data.gd" id="1_enemy"]
+[ext_resource type="Script" path="res://scripts/combat/enemy_action_data.gd" id="2_action"]
+
+[sub_resource type="Resource" id="Action_pancada"]
+script = ExtResource("2_action")
+type = "attack"
+display_name = "Pancada de Casca"
+damage = 10
+weight = 50
+
+[sub_resource type="Resource" id="Action_raizes"]
+script = ExtResource("2_action")
+type = "attack"
+display_name = "Raízes Famintas"
+damage = 6
+self_heal = 6
+weight = 30
+
+[sub_resource type="Resource" id="Action_casca_dura"]
+script = ExtResource("2_action")
+type = "defend"
+display_name = "Casca Dura"
+damage = 10
+weight = 20
+
+[resource]
+script = ExtResource("1_enemy")
+display_name = "Corpo-Seco"
+hp_max = 40
+actions = [SubResource("Action_pancada"), SubResource("Action_raizes"), SubResource("Action_casca_dura")]

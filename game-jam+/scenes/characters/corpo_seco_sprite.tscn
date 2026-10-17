@@ -1,0 +1,24 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/combat/placeholder_character.gd" id="1_char"]
+[ext_resource type="Texture2D" path="res://art/corpo_seco.png" id="2_tex"]
+
+[node name="CorpoSecoSprite" type="Node2D"]
+script = ExtResource("1_char")
+idle_bob = 5.0
+idle_period = 1.15
+idle_sway = 0.045
+forward_sign = -1.0
+step_distance = 40.0
+
+[node name="Shadow" type="Polygon2D" parent="."]
+color = Color(0.04, 0.02, 0.05, 0.4)
+polygon = PackedVector2Array(84.0, 0.0, 79.9, 4.9, 68.0, 9.4, 49.4, 12.9, 26.0, 15.2, 0.0, 16.0, -26.0, 15.2, -49.4, 12.9, -68.0, 9.4, -79.9, 4.9, -84.0, 0.0, -79.9, -4.9, -68.0, -9.4, -49.4, -12.9, -26.0, -15.2, -0.0, -16.0, 26.0, -15.2, 49.4, -12.9, 68.0, -9.4, 79.9, -4.9)
+
+[node name="Body" type="Node2D" parent="."]
+
+[node name="Art" type="Sprite2D" parent="Body"]
+texture_filter = 1
+scale = Vector2(4, 4)
+texture = ExtResource("2_tex")
+offset = Vector2(0, -32)

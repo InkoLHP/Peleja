@@ -1,0 +1,198 @@
+[gd_scene format=3 uid="uid://dkpcgdnp5dr73"]
+
+[ext_resource type="Script" uid="uid://c373vfjaeykiu" path="res://scripts/map/map_screen.gd" id="1_map"]
+[ext_resource type="Theme" uid="uid://c5b8nlqewc6bd" path="res://ui/menu_theme.tres" id="2_theme"]
+[ext_resource type="Resource" uid="uid://0lfgg1jehpmp" path="res://data/map_layout.tres" id="3_layout"]
+[ext_resource type="Script" uid="uid://bdugg3wasiaih" path="res://scripts/map/map_decoration.gd" id="4_decor"]
+[ext_resource type="Script" uid="uid://c1m2blyr35vok" path="res://scripts/map/player_marker.gd" id="5_marker"]
+[ext_resource type="Script" uid="uid://doyxd4eqlesdj" path="res://scripts/map/pause_menu.gd" id="6_pause"]
+
+[sub_resource type="StyleBoxFlat" id="Style_frame"]
+draw_center = false
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+border_color = Color(0.24, 0.14, 0.07, 1)
+
+[node name="Map" type="Control" unique_id=367980460]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme = ExtResource("2_theme")
+script = ExtResource("1_map")
+layout = ExtResource("3_layout")
+
+[node name="Background" type="ColorRect" parent="." unique_id=1707939819]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.784, 0.627, 0.416, 1)
+
+[node name="MapLayer" type="Node2D" parent="." unique_id=674906937]
+
+[node name="Decoration" type="Node2D" parent="MapLayer" unique_id=1150712958]
+script = ExtResource("4_decor")
+
+[node name="Paths" type="Node2D" parent="MapLayer" unique_id=1409213491]
+
+[node name="Nodes" type="Node2D" parent="MapLayer" unique_id=1712256850]
+
+[node name="Marker" type="Node2D" parent="MapLayer" unique_id=1228702980]
+script = ExtResource("5_marker")
+
+[node name="Frame" type="Panel" parent="." unique_id=660324945]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 14.0
+offset_top = 14.0
+offset_right = -14.0
+offset_bottom = -14.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("Style_frame")
+
+[node name="TopBar" type="PanelContainer" parent="." unique_id=501596093]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_left = 14.0
+offset_top = 14.0
+offset_right = -14.0
+offset_bottom = 62.0
+grow_horizontal = 2
+mouse_filter = 2
+
+[node name="HBox" type="HBoxContainer" parent="TopBar" unique_id=448471443]
+layout_mode = 2
+theme_override_constants/separation = 48
+
+[node name="HpLabel" type="Label" parent="TopBar/HBox" unique_id=1398650081]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.93, 0.86, 0.7, 1)
+theme_override_font_sizes/font_size = 20
+text = "Vida: 100/100"
+
+[node name="AmmoLabel" type="Label" parent="TopBar/HBox" unique_id=474073990]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.93, 0.86, 0.7, 1)
+theme_override_font_sizes/font_size = 20
+text = "Munição: 6/6"
+
+[node name="EventPopup" type="Control" parent="." unique_id=2085363646]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="Overlay" type="ColorRect" parent="EventPopup" unique_id=194267564]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.45)
+
+[node name="Center" type="CenterContainer" parent="EventPopup" unique_id=1598235101]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Panel" type="PanelContainer" parent="EventPopup/Center" unique_id=884303885]
+custom_minimum_size = Vector2(440, 0)
+layout_mode = 2
+
+[node name="VBox" type="VBoxContainer" parent="EventPopup/Center/Panel" unique_id=268395353]
+layout_mode = 2
+theme_override_constants/separation = 18
+
+[node name="Title" type="Label" parent="EventPopup/Center/Panel/VBox" unique_id=69133167]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.86, 0.35, 1)
+theme_override_font_sizes/font_size = 34
+text = "Evento"
+horizontal_alignment = 1
+
+[node name="Body" type="Label" parent="EventPopup/Center/Panel/VBox" unique_id=395916924]
+custom_minimum_size = Vector2(390, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.93, 0.86, 0.7, 1)
+theme_override_font_sizes/font_size = 20
+text = "Um evento acontece aqui..."
+horizontal_alignment = 1
+autowrap_mode = 3
+
+[node name="ContinueButton" type="Button" parent="EventPopup/Center/Panel/VBox" unique_id=1644521353]
+custom_minimum_size = Vector2(240, 52)
+layout_mode = 2
+size_flags_horizontal = 4
+text = "Continuar"
+
+[node name="PauseMenu" type="Control" parent="." unique_id=1690818931]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("6_pause")
+
+[node name="Overlay" type="ColorRect" parent="PauseMenu" unique_id=268084999]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.55)
+
+[node name="Center" type="CenterContainer" parent="PauseMenu" unique_id=1725750652]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Panel" type="PanelContainer" parent="PauseMenu/Center" unique_id=1122768724]
+layout_mode = 2
+
+[node name="VBox" type="VBoxContainer" parent="PauseMenu/Center/Panel" unique_id=1506682260]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="Title" type="Label" parent="PauseMenu/Center/Panel/VBox" unique_id=1692190993]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.86, 0.35, 1)
+theme_override_font_sizes/font_size = 32
+text = "Pausa"
+horizontal_alignment = 1
+
+[node name="ContinueButton" type="Button" parent="PauseMenu/Center/Panel/VBox" unique_id=359292958]
+custom_minimum_size = Vector2(260, 52)
+layout_mode = 2
+text = "Continuar"
+
+[node name="MenuButton" type="Button" parent="PauseMenu/Center/Panel/VBox" unique_id=1509577185]
+custom_minimum_size = Vector2(260, 52)
+layout_mode = 2
+text = "Voltar ao Menu"
