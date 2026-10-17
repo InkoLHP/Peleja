@@ -1,24 +1,24 @@
-[gd_scene format=3]
+[gd_scene format=3 uid="uid://y6hf1eho5adc"]
 
-[ext_resource type="Script" path="res://scripts/combat/placeholder_character.gd" id="1_char"]
-[ext_resource type="Texture2D" path="res://art/cangaceiro.png" id="2_tex"]
+[ext_resource type="Script" uid="uid://bor5e0u0fmvn" path="res://scripts/combat/placeholder_character.gd" id="1_char"]
+[ext_resource type="Texture2D" uid="uid://dahusgq03sj80" path="res://art/cangaço.png" id="2_tawcc"]
 
-[node name="CangaceiroSprite" type="Node2D"]
+[node name="CangaceiroSprite" type="Node2D" unique_id=1095483631]
 script = ExtResource("1_char")
 idle_bob = 3.0
 idle_period = 0.85
 idle_sway = 0.015
-forward_sign = 1.0
 step_distance = 48.0
 
-[node name="Shadow" type="Polygon2D" parent="."]
+[node name="Shadow" type="Polygon2D" parent="." unique_id=116994803]
 color = Color(0.04, 0.02, 0.05, 0.4)
-polygon = PackedVector2Array(80.0, 0.0, 76.1, 4.9, 64.7, 9.4, 47.0, 12.9, 24.7, 15.2, 0.0, 16.0, -24.7, 15.2, -47.0, 12.9, -64.7, 9.4, -76.1, 4.9, -80.0, 0.0, -76.1, -4.9, -64.7, -9.4, -47.0, -12.9, -24.7, -15.2, -0.0, -16.0, 24.7, -15.2, 47.0, -12.9, 64.7, -9.4, 76.1, -4.9)
+polygon = PackedVector2Array(80, 0, 76.1, 4.9, 64.7, 9.4, 47, 12.9, 24.7, 15.2, 0, 16, -24.7, 15.2, -47, 12.9, -64.7, 9.4, -76.1, 4.9, -80, 0, -76.1, -4.9, -64.7, -9.4, -47, -12.9, -24.7, -15.2, 0, -16, 24.7, -15.2, 47, -12.9, 64.7, -9.4, 76.1, -4.9)
 
-[node name="Body" type="Node2D" parent="."]
+[node name="Body" type="Node2D" parent="." unique_id=1155552312]
 
-[node name="Art" type="Sprite2D" parent="Body"]
+[node name="Art" type="Sprite2D" parent="Body" unique_id=245553267]
 texture_filter = 1
-scale = Vector2(4, 4)
-texture = ExtResource("2_tex")
+position = Vector2(-0.99999994, -118)
+scale = Vector2(0.4, 0.4)
+texture = ExtResource("2_tawcc")
 offset = Vector2(0, -32)
