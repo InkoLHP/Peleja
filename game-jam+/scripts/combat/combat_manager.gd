@@ -9,12 +9,16 @@ enum MenuMode { COMMAND, SUBMENU, TARGETING }
 
 const SKILL_DIR := "res://data/skills/"
 const DEFAULT_ENEMY_PATH := "res://data/enemies/corpo_seco.tres"
+const BOSS_TEXTURE_PATH := "res://art/corpo_seco_final.png"
+
+## Fúria do chefe: ganha +2 de dano por turno inimigo, até +8.
+const BOSS_FURY_PER_TURN := 2
+const BOSS_FURY_MAX_BONUS := 8
+
 const PLAYER_NAME := "Cangaceiro"
 const STEP_DELAY := 0.45
-## Pause before the turn passes on its own once the action points run out.
 const ZERO_AP_PAUSE := 0.6
 const PURIFY_DELAY := 1.5
-## Placeholder sprite height and the room the enemy readouts need above its head.
 const SPRITE_HEIGHT := 256.0
 const READOUT_HEIGHT := 150.0
 const MENU_ENTRY_SIZE := Vector2(0, 36)
@@ -27,7 +31,6 @@ const COL_AP_FILLED := Color(1, 0.86, 0.35, 1)
 const COL_AP_EMPTY := Color(0.33, 0.35, 0.4, 1)
 const COL_ENEMY_PURIFIED := Color(0.6, 0.95, 0.6, 1)
 
-## The bottom-left command menu. A command either runs a skill or opens a submenu.
 const COMMANDS := [
 	{"key": "attack", "label": "Atacar", "skill": SKILL_DIR + "atacar.tres", "submenu": ""},
 	{"key": "technique", "label": "Técnica", "skill": "", "submenu": "technique"},
@@ -41,13 +44,13 @@ const TECHNIQUE_PATHS := [
 	SKILL_DIR + "rasteira_de_malandro.tres",
 ]
 
-## Action points granted at the start of every player turn.
 @export var actions_per_turn: int = 2
 @export var floating_text_font: Font = preload("res://ui/xilosa_.ttf")
 
 @onready var arena: Control = $Arena
 @onready var player_sprite: PlaceholderCharacter = $Arena/PlayerSprite
 @onready var enemy_sprite: PlaceholderCharacter = $Arena/EnemySprite
+@onready var enemy_art: Sprite2D = $Arena/EnemySprite/Body/Art
 @onready var enemy_name_label: Label = $Arena/EnemyNameLabel
 @onready var enemy_hp_bar: Control = $Arena/EnemyHpBar
 @onready var info_moedas: Label = $BottomPanel/Margin/Row/InfoBox/StatusGrid/Moedas
@@ -85,7 +88,6 @@ const TECHNIQUE_PATHS := [
 @onready var menu_button: Button = $EndPanel/Center/Panel/VBox/MenuButton
 @onready var return_game_button: Button = $EndPanel/Center/Panel/VBox/ReturnGame
 
-# Referência opcional para o tutorial se ele existir na cena
 @onready var combat_tutorial: Control = $CombatTutorial if has_node("CombatTutorial") else null
 
 var _state: int = State.PLAYER_TURN
@@ -103,7 +105,9 @@ var _ap_dots: Array[Panel] = []
 var _sub_buttons: Array[Button] = []
 var rng = RandomNumberGenerator.new()
 
-## Command skill resources, loaded once.
+## Bônus acumulado de dano da Fúria Crescente.
+var _boss_fury_bonus: int = 0
+
 var _skill_cache: Dictionary = {}
 
 
@@ -124,7 +128,6 @@ func _ready() -> void:
 	sub_back_button.pressed.connect(_close_submenu)
 	sub_back_button.mouse_entered.connect(sub_back_button.grab_focus)
 
-	# Conecta os dois botões da tela de derrota.
 	menu_button.pressed.connect(_on_menu_pressed)
 	return_game_button.pressed.connect(_on_return_game_pressed)
 
@@ -137,10 +140,10 @@ func _ready() -> void:
 	_build_action_points()
 	_layout_arena()
 
-	# The enemy's first intent is shown before the player's very first turn.
 	_roll_intent()
 	_begin_player_turn()
 	_show_command_labels()
+
 	_on_ammo_changed(GameState.ammo, GameState.max_ammo)
 	_on_malandragem_changed(GameState.malandragem, GameState.max_malandragem)
 
@@ -151,8 +154,6 @@ func _ready() -> void:
 		combat_tutorial.queue_free()
 
 
-## WASD and the arrows both move the hand between the menu entries. Consuming the
-## event here keeps the built-in GUI navigation from moving the focus a second time.
 func _input(event: InputEvent) -> void:
 	if event.is_action_pressed("ui_down") or event.is_action_pressed("nav_down"):
 		_move_focus(1)
@@ -182,7 +183,6 @@ func _unhandled_input(event: InputEvent) -> void:
 				_confirm_target()
 				get_viewport().set_input_as_handled()
 			return
-
 		return
 
 	if _is_back_event(event):
@@ -192,11 +192,9 @@ func _unhandled_input(event: InputEvent) -> void:
 		return
 
 
-## Esc or Backspace: go back one menu level.
 func _is_back_event(event: InputEvent) -> bool:
 	if event.is_action_pressed("ui_cancel"):
 		return true
-
 	return event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_BACKSPACE
 
 
@@ -208,8 +206,9 @@ func _process(_delta: float) -> void:
 
 func _setup_combatants() -> void:
 	GameState.ensure_run()
-	_enemy_data = GameState.current_enemy as EnemyData
+	_boss_fury_bonus = 0
 
+	_enemy_data = GameState.current_enemy as EnemyData
 	if _enemy_data == null:
 		_enemy_data = load(DEFAULT_ENEMY_PATH) as EnemyData
 
@@ -222,15 +221,36 @@ func _setup_combatants() -> void:
 	_enemy = Combatant.new()
 	var enemy_hp := _enemy_data.hp_max if _enemy_data else 40
 	var enemy_name := _enemy_data.display_name if _enemy_data else "Corpo-Seco"
+
 	_enemy.setup(enemy_name, enemy_hp, enemy_hp)
 	_enemy.hp_changed.connect(_on_enemy_hp_changed)
 	_enemy.damaged.connect(_on_enemy_damaged)
 	_enemy.block_changed.connect(_on_enemy_block_changed)
 
 	enemy_name_label.text = enemy_name
+
+	if GameState.final_battle:
+		_apply_boss_visual()
+
 	info_moedas.text = "Moedas: %d" % [GameState.moedas]
 	info_hp.text = "HP %d/%d" % [_player.hp, _player.max_hp]
 	info_block.text = "Bloqueio: %d" % _player.block
+
+
+func _apply_boss_visual() -> void:
+	var boss_texture := load(BOSS_TEXTURE_PATH) as Texture2D
+
+	if boss_texture == null:
+		push_error("Não foi possível carregar o sprite do chefe: " + BOSS_TEXTURE_PATH)
+		return
+
+	var target_height := 220.0
+	var scale_factor := target_height / float(boss_texture.get_height())
+
+	enemy_art.texture = boss_texture
+	enemy_art.scale = Vector2.ONE * scale_factor
+	enemy_art.position = Vector2(0.0, -target_height * 0.5)
+	enemy_art.offset = Vector2.ZERO
 
 
 func _layout_arena() -> void:
@@ -243,6 +263,7 @@ func _layout_arena() -> void:
 
 	player_sprite.scale = Vector2.ONE * fit
 	enemy_sprite.scale = Vector2.ONE * fit
+
 	player_sprite.position = Vector2(area.x * 0.25, ground)
 	enemy_sprite.position = Vector2(area.x * 0.75, ground)
 
@@ -292,6 +313,7 @@ func _end_player_turn() -> void:
 	_refresh_hud()
 
 	await get_tree().create_timer(STEP_DELAY * 0.6).timeout
+
 	_state = State.ENEMY_ACTING
 	await _run_enemy_action()
 
@@ -306,7 +328,10 @@ func _run_enemy_action() -> void:
 	if _intent_cancelled:
 		_intent_cancelled = false
 		_show_float(enemy_sprite, "cancelado", COL_BLOCKED)
+
 		await get_tree().create_timer(STEP_DELAY).timeout
+
+		_increase_boss_fury()
 		_roll_intent()
 		return
 
@@ -323,17 +348,53 @@ func _run_enemy_action() -> void:
 	else:
 		await enemy_sprite.step_forward()
 		player_sprite.react_to_hit()
-		_player.take_damage(action.damage)
+
+		var incoming_damage := _effective_enemy_damage(action)
+		_player.take_damage(incoming_damage)
 
 		if action.self_heal > 0:
 			var healed := _enemy.heal(action.self_heal)
-
 			if healed > 0:
 				_show_float(enemy_sprite, "+%d" % healed, COL_HEAL)
 
 	_refresh_hud()
+
 	await get_tree().create_timer(STEP_DELAY).timeout
+
+	_increase_boss_fury()
 	_roll_intent()
+
+
+## Retorna o dano real que o inimigo causará.
+## O bônus só é aplicado na batalha final.
+func _effective_enemy_damage(action: EnemyActionData) -> int:
+	var damage: int = action.damage
+
+	if GameState.final_battle and action.type != "defend":
+		damage += _boss_fury_bonus
+
+	return damage
+
+
+## Aumenta a Fúria depois do turno do chefe.
+## O limite evita que o combate fique progressivamente impossível.
+func _increase_boss_fury() -> void:
+	if not GameState.final_battle:
+		return
+
+	if _boss_fury_bonus >= BOSS_FURY_MAX_BONUS:
+		return
+
+	_boss_fury_bonus = mini(
+		_boss_fury_bonus + BOSS_FURY_PER_TURN,
+		BOSS_FURY_MAX_BONUS
+	)
+
+	_show_float(
+		enemy_sprite,
+		"FÚRIA: +%d DANO" % _boss_fury_bonus,
+		COL_MALANDRAGEM
+	)
 
 
 ## --- commands ---------------------------------------------------------------------
@@ -356,7 +417,6 @@ func _on_command_pressed(index: int) -> void:
 
 	var command: Dictionary = COMMANDS[index]
 
-	# Se for o tutorial, avisa que o botão principal foi clicado.
 	if combat_tutorial != null and combat_tutorial.visible:
 		combat_tutorial.advance_if_action_matches(command.key)
 
@@ -384,7 +444,6 @@ func _technique_skills() -> Array[SkillData]:
 
 	for path in TECHNIQUE_PATHS:
 		var skill := _load_skill(path)
-
 		if skill != null:
 			skills.append(skill)
 
@@ -396,7 +455,6 @@ func _item_skills() -> Array[SkillData]:
 
 	for path in GameState.distinct_items():
 		var skill := _load_skill(path)
-
 		if skill != null:
 			skills.append(skill)
 
@@ -465,7 +523,6 @@ func _perform_skill(skill: SkillData) -> void:
 	if _state != State.PLAYER_TURN or not _can_use(skill):
 		return
 
-	# Integração com o tutorial: verifica qual ação foi realizada.
 	if combat_tutorial != null and combat_tutorial.visible:
 		var path_str = _skill_path(skill)
 
@@ -490,6 +547,7 @@ func _perform_skill(skill: SkillData) -> void:
 	if skill.damage > 0:
 		var spread := maxi(skill.damage_variance, 0)
 		var damage := maxi(skill.damage + randi_range(-spread, spread), 0)
+
 		_enemy.take_damage(damage)
 		enemy_sprite.react_to_hit()
 
@@ -518,6 +576,7 @@ func _perform_skill(skill: SkillData) -> void:
 		_show_float(player_sprite, "+%d malandragem" % skill.malandragem_gain, COL_MALANDRAGEM)
 
 	_refresh_hud()
+
 	await get_tree().create_timer(STEP_DELAY).timeout
 
 	if _enemy.hp <= 0:
@@ -527,6 +586,7 @@ func _perform_skill(skill: SkillData) -> void:
 	if _action_points <= 0:
 		_state = State.PLAYER_TURN
 		_refresh_hud()
+
 		await get_tree().create_timer(ZERO_AP_PAUSE).timeout
 		_end_player_turn()
 		return
@@ -593,6 +653,7 @@ func _open_submenu(title: String, skills: Array[SkillData]) -> void:
 			button.focus_mode = Control.FOCUS_ALL if not button.disabled else Control.FOCUS_NONE
 			button.pressed.connect(_on_sub_entry_pressed.bind(skill))
 			button.mouse_entered.connect(button.grab_focus)
+
 			sub_entries.add_child(button)
 			_sub_buttons.append(button)
 
@@ -643,7 +704,6 @@ func _confirm_target() -> void:
 	target_cursor.hide_target()
 	_menu_mode = MenuMode.COMMAND
 
-	# Se for o tutorial e a habilidade pendente for de ataque, avança o passo.
 	if combat_tutorial != null and combat_tutorial.visible:
 		combat_tutorial.advance_if_action_matches("attack")
 
@@ -675,7 +735,6 @@ func _roll_intent() -> void:
 	for action in _enemy_data.actions:
 		if action == _last_intent and _repeat_count >= 2:
 			continue
-
 		pool.append(action)
 
 	if pool.is_empty():
@@ -702,7 +761,6 @@ func _pick_weighted(actions: Array) -> EnemyActionData:
 
 	for action in actions:
 		roll -= maxi(action.weight, 1)
-
 		if roll < 0:
 			return action
 
@@ -730,7 +788,9 @@ func _refresh_intent() -> void:
 		intent_value.text = str(_intent.damage)
 	else:
 		intent_icon.set_kind(IntentIcon.Kind.ATTACK)
-		var text := str(_intent.damage)
+
+		# Mostra o dano previsto já incluindo a Fúria do chefe.
+		var text := str(_effective_enemy_damage(_intent))
 
 		if _intent.self_heal > 0:
 			text += "+%d" % _intent.self_heal
@@ -741,8 +801,8 @@ func _refresh_intent() -> void:
 ## --- outcome ----------------------------------------------------------------------
 
 func _win() -> void:
-	# Mantém a recompensa em moedas que já existia no seu projeto.
 	GameState.add_moedas(rng.randf_range(4, 13))
+
 	_state = State.VICTORY
 	_menu_mode = MenuMode.COMMAND
 	_close_submenu()
@@ -750,13 +810,13 @@ func _win() -> void:
 	_clear_focus()
 	_refresh_hud()
 
-	# Garante que o tutorial esteja desativado para as próximas batalhas.
 	GameState.is_tutorial = false
 
 	enemy_sprite.modulate = Color.WHITE
 	await get_tree().create_timer(0.24).timeout
 	enemy_sprite.modulate = COL_ENEMY_PURIFIED
 	_show_purified()
+
 	await get_tree().create_timer(PURIFY_DELAY).timeout
 
 	GameState.complete_map_node(GameState.current_map_node)
@@ -787,17 +847,16 @@ func _show_purified() -> void:
 	purified_label.show()
 
 	var tween := create_tween().set_parallel(true)
+
 	tween.tween_property(purified_label, "modulate:a", 1.0, 0.25)
 	tween.tween_property(purified_label, "scale", Vector2(1.06, 1.06), 0.4) \
 		.set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 
 
-## Botão MenuButton: retorna ao menu principal.
+## MenuButton: volta ao menu principal.
 func _on_menu_pressed() -> void:
-	# Preserva o estado do tutorial antes de limpar a jornada.
 	var tutorial_estava_ativo: bool = GameState.is_tutorial
 
-	# Limpa o progresso e restaura os recursos iniciais.
 	GameState.reset_run()
 	GameState.set_moedas(0)
 	GameState.is_tutorial = tutorial_estava_ativo
@@ -805,17 +864,14 @@ func _on_menu_pressed() -> void:
 	SceneRouter.go_to_menu()
 
 
-## Botão ReturnGame: reinicia a jornada no mapa.
+## ReturnGame: reinicia a jornada.
 func _on_return_game_pressed() -> void:
-	# Preserva o estado do tutorial para não obrigar o jogador a repeti-lo.
 	var tutorial_estava_ativo: bool = GameState.is_tutorial
 
-	# Reinicia a jornada, incluindo recursos, itens, mapa e moedas.
 	GameState.reset_run()
 	GameState.set_moedas(0)
 	GameState.is_tutorial = tutorial_estava_ativo
 
-	# Começa pelo primeiro ponto da jornada.
 	SceneRouter.go_to_map()
 
 
@@ -830,6 +886,7 @@ func _refresh_hud() -> void:
 	end_turn_button.disabled = _state != State.PLAYER_TURN
 	_update_action_points()
 	_update_enemy_bar()
+
 	_on_ammo_changed(GameState.ammo, GameState.max_ammo)
 	_on_malandragem_changed(GameState.malandragem, GameState.max_malandragem)
 
@@ -866,6 +923,7 @@ func _build_action_points() -> void:
 func _update_action_points() -> void:
 	for i in _ap_dots.size():
 		var filled := i < _action_points
+
 		_ap_dots[i].add_theme_stylebox_override(
 			"panel",
 			_dot_style(COL_AP_FILLED if filled else COL_AP_EMPTY)
@@ -885,11 +943,10 @@ func _dot_style(color: Color) -> StyleBoxFlat:
 func _update_enemy_bar() -> void:
 	var ratio := 0.0 if _enemy == null or _enemy.max_hp <= 0 else float(_enemy.hp) / float(_enemy.max_hp)
 	var inner := maxf(enemy_hp_bar.size.x - 4.0, 0.0)
+
 	enemy_hp_fill.offset_right = 2.0 + inner * ratio
 
 
-## Floating text over a character.
-## Texto flutuante sobre um personagem/inimigo com animação e remoção automática.
 func _show_float(target: Node2D, text: String, color: Color) -> void:
 	if target == null:
 		return
@@ -900,12 +957,9 @@ func _show_float(target: Node2D, text: String, color: Color) -> void:
 	label.z_index = 100
 	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-
-	# Garante tamanho suficiente para o texto caber sem quebrar.
 	label.custom_minimum_size = Vector2(300, 50)
 	label.size = Vector2(300, 50)
 
-	# Aplica a fonte personalizada se configurada.
 	if floating_text_font != null:
 		label.add_theme_font_override("font", floating_text_font)
 
@@ -914,11 +968,9 @@ func _show_float(target: Node2D, text: String, color: Color) -> void:
 	label.add_theme_color_override("font_outline_color", Color(0.05, 0.03, 0.02, 1.0))
 	label.add_theme_constant_override("outline_size", 6)
 
-	# Adiciona à camada de floating_layer (ou diretamente na cena se o layer for nulo).
 	var parent_node: Node = floating_layer if floating_layer != null else self
 	parent_node.add_child(label)
 
-	# Cálculo da posição global.
 	var fit: float = target.scale.y if "scale" in target else 1.0
 	var target_pos := target.global_position
 
@@ -927,23 +979,19 @@ func _show_float(target: Node2D, text: String, color: Color) -> void:
 		target_pos.y - (140.0 * fit)
 	)
 
-	# Se for o inimigo, ajusta um pouco a posição horizontal se necessário.
 	if target == enemy_sprite:
 		start_pos.x += 20.0
 
 	label.global_position = start_pos
 
-	# Anima a posição Y subindo 60 pixels.
 	var tween := create_tween()
 	tween.set_parallel(true)
 
 	tween.tween_property(label, "global_position:y", start_pos.y - 60.0, 0.8) \
 		.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
 
-	# Anima a opacidade desaparecendo após um pequeno atraso.
 	tween.tween_property(label, "modulate:a", 0.0, 0.4).set_delay(0.4)
 
-	# Remove o nó da memória assim que o Tween terminar.
 	tween.chain().tween_callback(label.queue_free)
 
 
@@ -986,6 +1034,7 @@ func _move_focus(step: int) -> void:
 	var current := get_viewport().gui_get_focus_owner()
 	var index := entries.find(current)
 	index = 0 if index == -1 else wrapi(index + step, 0, entries.size())
+
 	entries[index].grab_focus()
 
 
@@ -1056,5 +1105,6 @@ func _on_ammo_changed(current: int, maximum: int) -> void:
 func _on_malandragem_changed(current: int, maximum: int) -> void:
 	var ratio := 0.0 if maximum <= 0 else float(current) / float(maximum)
 	var inner := maxf(mal_fill.get_parent().size.x - 4.0, 0.0)
+
 	mal_fill.offset_right = 2.0 + inner * ratio
 	mal_value.text = "%d/%d" % [current, maximum]
