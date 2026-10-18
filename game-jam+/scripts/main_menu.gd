@@ -21,6 +21,7 @@ var _buttons: Array[Button] = []
 
 
 func _ready() -> void:
+	MainSoundtrack.play_menu()
 	_buttons = [new_game_button, continue_button, quit_button]
 	_spawn_trees()
 

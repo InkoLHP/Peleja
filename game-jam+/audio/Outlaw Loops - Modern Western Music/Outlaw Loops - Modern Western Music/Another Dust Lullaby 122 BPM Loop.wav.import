@@ -1,0 +1,24 @@
+[remap]
+
+importer="wav"
+type="AudioStreamWAV"
+uid="uid://dyam5dxffd3y8"
+path="res://.godot/imported/Another Dust Lullaby 122 BPM Loop.wav-45c30cadb8ddc0e76c0bf699243117c2.sample"
+
+[deps]
+
+source_file="res://audio/Outlaw Loops - Modern Western Music/Outlaw Loops - Modern Western Music/Another Dust Lullaby 122 BPM Loop.wav"
+dest_files=["res://.godot/imported/Another Dust Lullaby 122 BPM Loop.wav-45c30cadb8ddc0e76c0bf699243117c2.sample"]
+
+[params]
+
+force/8_bit=false
+force/mono=false
+force/max_rate=false
+force/max_rate_hz=44100
+edit/trim=false
+edit/normalize=false
+edit/loop_mode=0
+edit/loop_begin=0
+edit/loop_end=-1
+compress/mode=2
