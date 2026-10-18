@@ -50,6 +50,7 @@ const TECHNIQUE_PATHS := [
 @onready var enemy_sprite: PlaceholderCharacter = $Arena/EnemySprite
 @onready var enemy_name_label: Label = $Arena/EnemyNameLabel
 @onready var enemy_hp_bar: Control = $Arena/EnemyHpBar
+@onready var info_moedas: Label = $BottomPanel/Margin/Row/InfoBox/StatusGrid/Moedas
 @onready var enemy_hp_fill: ColorRect = $Arena/EnemyHpBar/Fill
 @onready var intent_icon: IntentIcon = $Arena/EnemyIntent/IntentRow/IntentIcon
 @onready var intent_value: Label = $Arena/EnemyIntent/IntentRow/IntentValue
@@ -99,6 +100,7 @@ var _pending_skill: SkillData
 var _action_points := 0
 var _ap_dots: Array[Panel] = []
 var _sub_buttons: Array[Button] = []
+var rng = RandomNumberGenerator.new()
 ## Command skill resources, loaded once.
 var _skill_cache: Dictionary = {}
 
@@ -211,6 +213,7 @@ func _setup_combatants() -> void:
 	_enemy.block_changed.connect(_on_enemy_block_changed)
 
 	enemy_name_label.text = enemy_name
+	info_moedas.text = "Moedas: %d" % [GameState.moedas]
 	info_hp.text = "HP %d/%d" % [_player.hp, _player.max_hp]
 	info_block.text = "Bloqueio: %d" % _player.block
 
@@ -642,6 +645,7 @@ func _refresh_intent() -> void:
 ## --- outcome ----------------------------------------------------------------------
 
 func _win() -> void:
+	GameState.add_moedas(rng.randf_range(4, 13))
 	_state = State.VICTORY
 	_menu_mode = MenuMode.COMMAND
 	_close_submenu()
@@ -694,6 +698,7 @@ func _on_menu_pressed() -> void:
 func _refresh_hud() -> void:
 	info_hp.text = "HP %d/%d" % [_player.hp, _player.max_hp]
 	info_block.text = "Bloqueio: %d" % _player.block
+	info_moedas.text = "Moedas: %d" % [GameState.moedas]
 	_refresh_command_buttons()
 	end_turn_button.disabled = _state != State.PLAYER_TURN
 	_update_action_points()
