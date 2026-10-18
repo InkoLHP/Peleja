@@ -43,6 +43,7 @@ const TECHNIQUE_PATHS := [
 
 ## Action points granted at the start of every player turn.
 @export var actions_per_turn: int = 2
+@export var floating_text_font: Font = preload("res://ui/xilosa_.ttf")
 
 @onready var arena: Control = $Arena
 @onready var player_sprite: PlaceholderCharacter = $Arena/PlayerSprite
@@ -81,6 +82,9 @@ const TECHNIQUE_PATHS := [
 @onready var end_panel: Control = $EndPanel
 @onready var result_label: Label = $EndPanel/Center/Panel/VBox/ResultLabel
 @onready var menu_button: Button = $EndPanel/Center/Panel/VBox/MenuButton
+
+# Referência opcional para o tutorial se ele existir na cena
+@onready var combat_tutorial: Control = $CombatTutorial if has_node("CombatTutorial") else null
 
 var _state: int = State.PLAYER_TURN
 var _menu_mode: int = MenuMode.COMMAND
@@ -129,6 +133,12 @@ func _ready() -> void:
 	_show_command_labels()
 	_on_ammo_changed(GameState.ammo, GameState.max_ammo)
 	_on_malandragem_changed(GameState.malandragem, GameState.max_malandragem)
+	
+	if GameState.is_tutorial and combat_tutorial != null:
+		combat_tutorial.start_tutorial(self)
+	elif combat_tutorial != null:
+		combat_tutorial.hide()
+		combat_tutorial.queue_free()
 
 
 ## WASD and the arrows both move the hand between the menu entries. Consuming the
@@ -181,13 +191,11 @@ func _process(_delta: float) -> void:
 ## --- setup ------------------------------------------------------------------------
 
 func _setup_combatants() -> void:
-	# Opened straight from the editor (no menu): start a default run so the scene works.
 	GameState.ensure_run()
 	_enemy_data = GameState.current_enemy as EnemyData
 	if _enemy_data == null:
 		_enemy_data = load(DEFAULT_ENEMY_PATH) as EnemyData
 
-	# The Cangaceiro's HP lives in GameState, so the battle reads and writes it there.
 	_player = Combatant.new()
 	_player.setup(PLAYER_NAME, GameState.hp, GameState.max_hp)
 	_player.hp_changed.connect(_on_player_hp_changed)
@@ -207,22 +215,17 @@ func _setup_combatants() -> void:
 	info_block.text = "Bloqueio: %d" % _player.block
 
 
-## Keeps the characters on the ground line and the enemy readouts above its head,
-## whatever the window size is.
 func _layout_arena() -> void:
 	var area := arena.size
 	if area.x <= 0.0 or area.y <= 0.0:
 		return
 	var ground := area.y - 34.0
-	# The sprite is ~262 px tall and the enemy readouts (name, HP bar, intent) need ~150 px
-	# above its head, so the scale is derived from the arena height to keep all of it on screen.
 	var fit := clampf((area.y - 34.0 - READOUT_HEIGHT) / SPRITE_HEIGHT, 0.5, 1.2)
 	player_sprite.scale = Vector2.ONE * fit
 	enemy_sprite.scale = Vector2.ONE * fit
 	player_sprite.position = Vector2(area.x * 0.25, ground)
 	enemy_sprite.position = Vector2(area.x * 0.75, ground)
 
-	# Stack above the enemy's head: name, HP bar, then the intent icon right over the head.
 	var top := enemy_sprite.position.y - SPRITE_HEIGHT * fit
 	var center_x := enemy_sprite.position.x
 	$Arena/EnemyIntent.position = Vector2(center_x - 120.0, top - 70.0)
@@ -234,7 +237,6 @@ func _layout_arena() -> void:
 	_update_enemy_bar()
 
 
-## The enemy's body box in the arena's own space, for the target frame and clicks.
 func _enemy_rect() -> Rect2:
 	var fit: float = enemy_sprite.scale.x
 	var box := Vector2(150.0, 250.0) * fit
@@ -251,7 +253,6 @@ func _to_arena_space(viewport_point: Vector2) -> Vector2:
 func _begin_player_turn() -> void:
 	_state = State.PLAYER_TURN
 	_action_points = actions_per_turn
-	# Block never carries over into the player's turn.
 	_player.reset_block()
 	_refresh_hud()
 	_open_command_menu()
@@ -270,14 +271,11 @@ func _end_player_turn() -> void:
 	if _player.hp <= 0:
 		_lose()
 		return
-	# The enemy already picked and displayed its new intent.
 	_begin_player_turn()
 
 
-## The enemy executes exactly the intent that was shown, then rolls the next one.
 func _run_enemy_action() -> void:
 	if _intent_cancelled:
-		# Rasteira de Malandro: this action is skipped entirely.
 		_intent_cancelled = false
 		_show_float(enemy_sprite, "cancelado", COL_BLOCKED)
 		await get_tree().create_timer(STEP_DELAY).timeout
@@ -320,6 +318,10 @@ func _on_command_pressed(index: int) -> void:
 	if _state != State.PLAYER_TURN or _menu_mode == MenuMode.TARGETING:
 		return
 	var command: Dictionary = COMMANDS[index]
+	
+	# Se for o tutorial, avisa que o botão principal (ex: Atacar/Defender/Item/Técnica) foi clicado
+	if combat_tutorial != null and combat_tutorial.visible:
+		combat_tutorial.advance_if_action_matches(command.key)
 	if command.submenu == "technique":
 		_open_submenu("Técnica", _technique_skills())
 		return
@@ -344,7 +346,6 @@ func _technique_skills() -> Array[SkillData]:
 	return skills
 
 
-## One entry per carried item type; items vanish from the list once used up.
 func _item_skills() -> Array[SkillData]:
 	var skills: Array[SkillData] = []
 	for path in GameState.distinct_items():
@@ -378,7 +379,6 @@ func _can_use(skill: SkillData) -> bool:
 	return true
 
 
-## "Tiro de Bacamarte (1 AP, 1 munição)" style label.
 func _skill_label(skill: SkillData) -> String:
 	var costs: Array[String] = ["%d AP" % skill.ap_cost]
 	if skill.ammo_cost > 0:
@@ -403,6 +403,19 @@ func _skill_path(skill: SkillData) -> String:
 func _perform_skill(skill: SkillData) -> void:
 	if _state != State.PLAYER_TURN or not _can_use(skill):
 		return
+		
+	# Integração com o tutorial: verifica qual ação foi realizada
+	if combat_tutorial != null and combat_tutorial.visible:
+		var path_str = _skill_path(skill)
+		if "atacar" in path_str:
+			combat_tutorial.advance_if_action_matches("attack")
+		elif "defender" in path_str:
+			combat_tutorial.advance_if_action_matches("defend")
+		elif skill.effect == "heal":
+			combat_tutorial.advance_if_action_matches("use_item")
+		elif "tiro_de_bacamarte" in path_str or "recarregar" in path_str or "rasteira" in path_str:
+			combat_tutorial.advance_if_action_matches("technique")
+
 	_state = State.PLAYER_ACTING
 	_close_submenu()
 	target_cursor.hide_target()
@@ -442,7 +455,6 @@ func _perform_skill(skill: SkillData) -> void:
 		_win()
 		return
 	if _action_points <= 0:
-		# Out of points: the turn passes on its own, but the player can still end it early.
 		_state = State.PLAYER_TURN
 		_refresh_hud()
 		await get_tree().create_timer(ZERO_AP_PAUSE).timeout
@@ -511,7 +523,6 @@ func _open_submenu(title: String, skills: Array[SkillData]) -> void:
 	_focus_first_enabled(_sub_buttons)
 
 
-## The submenu replaces the command grid inside the same panel, so it never needs extra room.
 func _set_submenu_visible(value: bool) -> void:
 	sub_panel.visible = value
 	main_view.visible = not value
@@ -551,6 +562,9 @@ func _confirm_target() -> void:
 	_pending_skill = null
 	target_cursor.hide_target()
 	_menu_mode = MenuMode.COMMAND
+	# Se for o tutorial e a habilidade pendente for de ataque, garante o avanço do passo
+	if combat_tutorial != null and combat_tutorial.visible:
+		combat_tutorial.advance_if_action_matches("attack")
 	_perform_skill(skill)
 
 
@@ -574,7 +588,6 @@ func _roll_intent() -> void:
 		return
 	var pool: Array = []
 	for action in _enemy_data.actions:
-		# Never the same action three turns in a row.
 		if action == _last_intent and _repeat_count >= 2:
 			continue
 		pool.append(action)
@@ -635,7 +648,10 @@ func _win() -> void:
 	target_cursor.hide_target()
 	_clear_focus()
 	_refresh_hud()
-	# Purification: white flash, then the creature settles into a light green.
+	
+	# Garante que o tutorial esteja desativado para as próximas batalhas
+	GameState.is_tutorial = false
+	
 	enemy_sprite.modulate = Color.WHITE
 	await get_tree().create_timer(0.24).timeout
 	enemy_sprite.modulate = COL_ENEMY_PURIFIED
@@ -643,7 +659,6 @@ func _win() -> void:
 	await get_tree().create_timer(PURIFY_DELAY).timeout
 	GameState.complete_map_node(GameState.current_map_node)
 	if GameState.final_battle:
-		# The last enemy fell: the journey is over.
 		SceneRouter.go_to_ending()
 	else:
 		SceneRouter.go_to_map()
@@ -736,30 +751,54 @@ func _update_enemy_bar() -> void:
 
 
 ## Floating text over a character.
+## Texto flutuante sobre um personagem/inimigo com animação e remoção automática
 func _show_float(target: Node2D, text: String, color: Color) -> void:
+	if target == null:
+		return
 	var label := Label.new()
 	label.text = text
 	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	label.z_index = 50
-	label.size = Vector2(260, 56)
+	label.z_index = 100
 	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	label.add_theme_font_size_override("font_size", 34)
+	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	
+	# Garante tamanho suficiente para o texto caber sem quebrar
+	label.custom_minimum_size = Vector2(300, 50)
+	label.size = Vector2(300, 50)
+	# Aplica a fonte personalizada se configurada
+	if floating_text_font != null:
+		label.add_theme_font_override("font", floating_text_font)
+	label.add_theme_font_size_override("font_size", 24)
 	label.add_theme_color_override("font_color", color)
-	label.add_theme_color_override("font_outline_color", Color(0.05, 0.03, 0.02, 0.9))
+	label.add_theme_color_override("font_outline_color", Color(0.05, 0.03, 0.02, 1.0))
 	label.add_theme_constant_override("outline_size", 6)
-	floating_layer.add_child(label)
-	# Spawn at mid-body (the intent icon sits above the head), nudged to the side for the enemy.
-	var fit: float = target.scale.x
-	var side := 70.0 if target == enemy_sprite else 0.0
-	var point := target.global_position + Vector2(side, -150.0 * fit)
-	var local := floating_layer.get_global_transform().affine_inverse() * point
-	label.position = local - Vector2(label.size.x * 0.5, label.size.y * 0.5)
-
+	# Adiciona à camada de floating_layer (ou diretamente na cena se o layer for nulo)
+	var parent_node: Node = floating_layer if floating_layer != null else self
+	parent_node.add_child(label)
+	# --- CÁLCULO DA POSIÇÃO GLOBAL ---
+	var fit: float = target.scale.y if "scale" in target else 1.0
+	var target_pos := target.global_position
+	# Posiciona o texto acima da cabeça do personagem/inimigo (ajuste vertical de 140px)
+	var start_pos := Vector2(
+		target_pos.x - (label.size.x * 0.5),
+		target_pos.y - (140.0 * fit)
+	)
+	# Se for o inimigo, ajusta um pouco a posição horizontal se necessário
+	if target == enemy_sprite:
+		start_pos.x += 20.0
+	label.global_position = start_pos
+	# --- ANIMAÇÃO (TWEEN): SUBIR E SUMIR ---
 	var tween := create_tween()
 	tween.set_parallel(true)
-	tween.tween_property(label, "position:y", label.position.y - 70.0, 0.9) \
+	
+	# Anima a posição Y subindo 60 pixels
+	tween.tween_property(label, "global_position:y", start_pos.y - 60.0, 0.8) \
 		.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
-	tween.tween_property(label, "modulate:a", 0.0, 0.55).set_delay(0.35)
+		
+	# Anima a opacidade (Alpha) desaparecendo após um pequeno atraso
+	tween.tween_property(label, "modulate:a", 0.0, 0.4).set_delay(0.4)
+	
+	# Remove o nó da memória assim que o Tween terminar
 	tween.chain().tween_callback(label.queue_free)
 
 
@@ -800,7 +839,6 @@ func _move_focus(step: int) -> void:
 	entries[index].grab_focus()
 
 
-## The hand follows whatever entry currently has focus, keyboard or mouse.
 func _update_pointer() -> void:
 	if _menu_mode == MenuMode.TARGETING or _state == State.VICTORY or _state == State.DEFEAT:
 		pointer.hide()
@@ -816,7 +854,6 @@ func _update_pointer() -> void:
 	var rect := entry.get_global_rect()
 	var parent := pointer.get_parent() as Control
 	var local := parent.get_global_transform().affine_inverse() * rect.position
-	# The hand sits just left of the entry; the grid gap is wide enough to hold it.
 	pointer.position = local + Vector2(-pointer.size.x - 6.0, (rect.size.y - pointer.size.y) * 0.5)
 	pointer.show()
 

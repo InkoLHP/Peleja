@@ -21,6 +21,8 @@ var ammo: int = DEFAULT_MAX_AMMO
 var max_malandragem: int = DEFAULT_MAX_MALANDRAGEM
 var malandragem: int = 0
 
+var is_tutorial: bool = true
+
 # Run progress. The inventory holds one entry per unit, so duplicates mean "two units".
 var inventory: Array = []
 ## True once a run has been started (Nova Jornada) or initialised by a scene opened directly.
@@ -38,6 +40,7 @@ signal map_node_completed(node_id: int)
 
 ## Resets everything to the start of a new journey.
 func reset_run() -> void:
+	is_tutorial = true
 	run_active = true
 	max_hp = DEFAULT_MAX_HP
 	max_ammo = DEFAULT_MAX_AMMO

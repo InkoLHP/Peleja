@@ -1,0 +1,72 @@
+[gd_scene format=3 uid="uid://dv55owvkiqvtf"]
+
+[ext_resource type="Script" uid="uid://dsjcb6uyonia7" path="res://combat_tutorial.gd" id="1_r5wfb"]
+[ext_resource type="FontFile" uid="uid://dugkosgq0y7rf" path="res://ui/xilosa_.ttf" id="3_qpfaa"]
+
+[node name="CombatTutorial" type="Control" unique_id=586632289]
+visible = false
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 1
+script = ExtResource("1_r5wfb")
+
+[node name="DimOverlay" type="ColorRect" parent="." unique_id=523593576]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.011764706, 0.011764706, 0.011764706, 0.27450982)
+
+[node name="HighlightRect" type="ReferenceRect" parent="." unique_id=233240964]
+layout_mode = 0
+offset_right = 140.0
+offset_bottom = 88.0
+border_color = Color(1, 0.7490196, 0, 1)
+border_width = 3.0
+editor_only = false
+
+[node name="BalloonPanel" type="PanelContainer" parent="." unique_id=300239665]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="Margin" type="MarginContainer" parent="BalloonPanel" unique_id=1096726974]
+layout_mode = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 12
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 12
+
+[node name="VBox" type="VBoxContainer" parent="BalloonPanel/Margin" unique_id=60932902]
+custom_minimum_size = Vector2(440, 0)
+layout_mode = 2
+
+[node name="TitleLabel" type="Label" parent="BalloonPanel/Margin/VBox" unique_id=172333546]
+custom_minimum_size = Vector2(440, 0)
+layout_mode = 2
+size_flags_horizontal = 0
+theme_override_colors/font_color = Color(1, 0.5647059, 0, 1)
+theme_override_fonts/font = ExtResource("3_qpfaa")
+autowrap_mode = 3
+
+[node name="BodyLabel" type="Label" parent="BalloonPanel/Margin/VBox" unique_id=1553371110]
+custom_minimum_size = Vector2(440, 0)
+layout_mode = 2
+size_flags_horizontal = 0
+theme_override_colors/font_color = Color(0.9019608, 0.87058824, 0.84705883, 1)
+theme_override_fonts/font = ExtResource("3_qpfaa")
+autowrap_mode = 3
+
+[node name="NextButton" type="Button" parent="BalloonPanel/Margin/VBox" unique_id=1391981974]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.7490196, 0, 1)
+theme_override_fonts/font = ExtResource("3_qpfaa")
+text = "Avançar"
+flat = true
