@@ -6,6 +6,7 @@ signal ammo_changed(current: int, maximum: int)
 signal malandragem_changed(current: int, maximum: int)
 signal inventory_changed
 signal run_reset
+signal moedas_changed(current: int)
 
 const SAVE_PATH := "user://save_run.json"
 const DEFAULT_MAX_HP := 100
@@ -20,6 +21,7 @@ var max_ammo: int = DEFAULT_MAX_AMMO
 var ammo: int = DEFAULT_MAX_AMMO
 var max_malandragem: int = DEFAULT_MAX_MALANDRAGEM
 var malandragem: int = 0
+var moedas: int = 0
 
 var is_tutorial: bool = true
 
@@ -71,6 +73,19 @@ func set_hp(value: int) -> void:
 	hp = clampi(value, 0, max_hp)
 	hp_changed.emit(hp, max_hp)
 
+func set_moedas(value: int) -> void:
+	moedas = value
+	moedas_changed.emit(moedas)
+
+
+func spend_moedas(amount: int) -> bool:
+	if moedas < amount:
+		return false
+	set_moedas(moedas - amount)
+	return true
+
+func add_moedas(amount: int) -> void:
+	set_moedas(moedas + amount)
 
 func set_ammo(value: int) -> void:
 	ammo = clampi(value, 0, max_ammo)
