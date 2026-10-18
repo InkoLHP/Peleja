@@ -520,5 +520,10 @@ layout_mode = 2
 size_flags_horizontal = 4
 text = "Voltar ao menu"
 
+[node name="ReturnGame" type="Button" parent="EndPanel/Center/Panel/VBox" unique_id=851299589]
+custom_minimum_size = Vector2(300, 56)
+layout_mode = 2
+text = "reiniciar a jornada"
+
 [node name="CombatTutorial" parent="." unique_id=586632289 instance=ExtResource("12_gvie1")]
 layout_mode = 1
