@@ -4,13 +4,14 @@
 [ext_resource type="Theme" uid="uid://c5b8nlqewc6bd" path="res://ui/menu_theme.tres" id="2_theme"]
 [ext_resource type="Script" uid="uid://b5ga8g4bpaavj" path="res://scripts/combat/intent_icon.gd" id="3_intent"]
 [ext_resource type="Script" uid="uid://bj2r0drl08qoa" path="res://scripts/combat/target_cursor.gd" id="4_cursor"]
-[ext_resource type="PackedScene" path="res://scenes/characters/cangaceiro_sprite.tscn" id="5_player"]
-[ext_resource type="PackedScene" path="res://scenes/characters/corpo_seco_sprite.tscn" id="6_enemy"]
+[ext_resource type="PackedScene" uid="uid://y6hf1eho5adc" path="res://scenes/characters/cangaceiro_sprite.tscn" id="5_player"]
+[ext_resource type="PackedScene" uid="uid://ckf8y3bw7xkqb" path="res://scenes/characters/corpo_seco_sprite.tscn" id="6_enemy"]
 [ext_resource type="Texture2D" uid="uid://bh0qmggtsk7ya" path="res://art/bg_arena.png" id="7_bg"]
 [ext_resource type="FontFile" uid="uid://dugkosgq0y7rf" path="res://ui/xilosa_.ttf" id="7_hrcy2"]
 [ext_resource type="Texture2D" uid="uid://denkwhay1kfm8" path="res://art/ground_tile.png" id="8_ground"]
 [ext_resource type="Texture2D" uid="uid://clbos81eggac1" path="res://art/ui_hud.png" id="9_hud"]
 [ext_resource type="Texture2D" uid="uid://8ypq7nffigp2" path="res://art/ui_panel.png" id="10_panel"]
+[ext_resource type="PackedScene" uid="uid://dv55owvkiqvtf" path="res://scripts/combat_tutorial.tscn" id="12_gvie1"]
 
 [sub_resource type="StyleBoxTexture" id="Style_bottom"]
 texture = ExtResource("9_hud")
@@ -194,6 +195,7 @@ grow_vertical = 2
 theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_colors/font_outline_color = Color(1, 0.85, 0.3, 1)
 theme_override_constants/outline_size = 12
+theme_override_fonts/font = ExtResource("7_hrcy2")
 theme_override_font_sizes/font_size = 84
 text = "PURIFICADO!"
 horizontal_alignment = 1
@@ -295,6 +297,7 @@ theme_override_constants/separation = 6
 visible = false
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.86, 0.35, 1)
+theme_override_fonts/font = ExtResource("7_hrcy2")
 theme_override_font_sizes/font_size = 20
 text = "Técnica"
 
@@ -312,6 +315,7 @@ theme_override_constants/separation = 6
 custom_minimum_size = Vector2(0, 36)
 layout_mode = 2
 mouse_default_cursor_shape = 2
+theme_override_fonts/font = ExtResource("7_hrcy2")
 text = "Voltar"
 
 [node name="Spacer" type="Control" parent="BottomPanel/Margin/Row" unique_id=697268822]
@@ -493,6 +497,7 @@ theme_override_constants/separation = 26
 [node name="ResultLabel" type="Label" parent="EndPanel/Center/Panel/VBox" unique_id=658934039]
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.86, 0.35, 1)
+theme_override_fonts/font = ExtResource("7_hrcy2")
 theme_override_font_sizes/font_size = 40
 text = "A Hecatombe venceu..."
 horizontal_alignment = 1
@@ -503,3 +508,6 @@ custom_minimum_size = Vector2(300, 56)
 layout_mode = 2
 size_flags_horizontal = 4
 text = "Voltar ao menu"
+
+[node name="CombatTutorial" parent="." unique_id=586632289 instance=ExtResource("12_gvie1")]
+layout_mode = 1

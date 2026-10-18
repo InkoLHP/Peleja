@@ -119,7 +119,9 @@ func _on_button_focus_changed(button: Button, focused: bool) -> void:
 
 func _on_new_game_pressed() -> void:
 	GameState.reset_run()
-	SceneRouter.go_to_map()
+	GameState.is_tutorial = true
+	GameState.current_enemy = load("res://data/enemies/corpo_seco.tres")
+	SceneRouter.go_to_combat()
 
 
 func _on_continue_pressed() -> void:
