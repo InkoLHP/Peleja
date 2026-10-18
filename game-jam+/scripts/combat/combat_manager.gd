@@ -19,6 +19,13 @@ const SPRITE_HEIGHT := 256.0
 const READOUT_HEIGHT := 150.0
 const MENU_ENTRY_SIZE := Vector2(0, 36)
 
+const SFX_SHOT := preload("res://audio/9mm Single.mp3")
+const SFX_RELOAD := preload("res://audio/Slide1.ogg")
+const SFX_SWORD := preload("res://audio/universfield-sword-blade-slicing-flesh-352708.mp3")
+const SFX_DRINK := preload("res://audio/freesound_community-juicy-splash-104642.mp3")
+
+var _sfx := AudioStreamPlayer.new()
+
 const COL_DAMAGE := Color(1, 0.35, 0.28, 1)
 const COL_BLOCKED := Color(0.75, 0.78, 0.85, 1)
 const COL_HEAL := Color(0.5, 0.95, 0.55, 1)
@@ -104,6 +111,8 @@ var _skill_cache: Dictionary = {}
 
 
 func _ready() -> void:
+	MainSoundtrack.play_combat()
+	add_child(_sfx)
 	end_panel.hide()
 	purified_label.hide()
 	_set_submenu_visible(false)
@@ -151,6 +160,9 @@ func _input(event: InputEvent) -> void:
 		_move_focus(-1)
 		get_viewport().set_input_as_handled()
 
+func _play_sfx(stream: AudioStream) -> void:
+	_sfx.stream = stream
+	_sfx.play()
 
 func _unhandled_input(event: InputEvent) -> void:
 	if _state == State.VICTORY or _state == State.DEFEAT:
@@ -403,17 +415,17 @@ func _skill_path(skill: SkillData) -> String:
 func _perform_skill(skill: SkillData) -> void:
 	if _state != State.PLAYER_TURN or not _can_use(skill):
 		return
-		
-	# Integração com o tutorial: verifica qual ação foi realizada
+
+	var skill_path := _skill_path(skill)
+
 	if combat_tutorial != null and combat_tutorial.visible:
-		var path_str = _skill_path(skill)
-		if "atacar" in path_str:
+		if "atacar" in skill_path:
 			combat_tutorial.advance_if_action_matches("attack")
-		elif "defender" in path_str:
+		elif "defender" in skill_path:
 			combat_tutorial.advance_if_action_matches("defend")
 		elif skill.effect == "heal":
 			combat_tutorial.advance_if_action_matches("use_item")
-		elif "tiro_de_bacamarte" in path_str or "recarregar" in path_str or "rasteira" in path_str:
+		elif "tiro_de_bacamarte" in skill_path or "recarregar" in skill_path or "rasteira" in skill_path:
 			combat_tutorial.advance_if_action_matches("technique")
 
 	_state = State.PLAYER_ACTING
@@ -425,6 +437,11 @@ func _perform_skill(skill: SkillData) -> void:
 
 	await player_sprite.step_forward()
 
+	if "atacar" in skill_path:
+		_play_sfx(SFX_SWORD)
+	elif "tiro_de_bacamarte" in skill_path:
+		_play_sfx(SFX_SHOT)
+
 	if skill.damage > 0:
 		var spread := maxi(skill.damage_variance, 0)
 		var damage := maxi(skill.damage + randi_range(-spread, spread), 0)
@@ -434,11 +451,13 @@ func _perform_skill(skill: SkillData) -> void:
 		_player.add_block(skill.block)
 		_show_float(player_sprite, "+%d bloqueio" % skill.block, COL_BLOCKED)
 	if skill.effect == "heal" and skill.heal > 0:
+		_play_sfx(SFX_DRINK)
 		var healed := _player.heal(skill.heal)
 		if healed > 0:
 			_show_float(player_sprite, "+%d" % healed, COL_HEAL)
-		GameState.consume_item(_skill_path(skill))
+		GameState.consume_item(skill_path)
 	if skill.effect == "reload_ammo":
+		_play_sfx(SFX_RELOAD)
 		GameState.reload_ammo()
 		_show_float(player_sprite, "munição cheia", COL_MALANDRAGEM)
 	if skill.effect == "cancel_intent":
@@ -562,7 +581,6 @@ func _confirm_target() -> void:
 	_pending_skill = null
 	target_cursor.hide_target()
 	_menu_mode = MenuMode.COMMAND
-	# Se for o tutorial e a habilidade pendente for de ataque, garante o avanço do passo
 	if combat_tutorial != null and combat_tutorial.visible:
 		combat_tutorial.advance_if_action_matches("attack")
 	_perform_skill(skill)
@@ -649,7 +667,6 @@ func _win() -> void:
 	_clear_focus()
 	_refresh_hud()
 	
-	# Garante que o tutorial esteja desativado para as próximas batalhas
 	GameState.is_tutorial = false
 	
 	enemy_sprite.modulate = Color.WHITE

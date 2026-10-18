@@ -45,6 +45,7 @@ var _cursor_shape := Input.CURSOR_ARROW
 
 
 func _ready() -> void:
+	MainSoundtrack.play_menu()
 	get_tree().paused = false
 	# Opened without going through the menu: start a default run so the map begins at the start.
 	GameState.ensure_run()

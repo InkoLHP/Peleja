@@ -19,6 +19,7 @@ config/icon="res://icon.svg"
 
 GameState="*res://scripts/game_state.gd"
 SceneRouter="*res://scripts/scene_router.gd"
+MainSoundtrack="*uid://bgmjotp1u5d7n"
 
 [display]
 

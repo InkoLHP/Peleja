@@ -1,0 +1,24 @@
+[remap]
+
+importer="wav"
+type="AudioStreamWAV"
+uid="uid://f6ppswvpx041"
+path="res://.godot/imported/End of the Rope A 172 BPM Loop.wav-99bfcee2fb9e62016dc83a45b3bb4487.sample"
+
+[deps]
+
+source_file="res://audio/Outlaw Loops - Modern Western Music/Outlaw Loops - Modern Western Music/End of the Rope A 172 BPM Loop.wav"
+dest_files=["res://.godot/imported/End of the Rope A 172 BPM Loop.wav-99bfcee2fb9e62016dc83a45b3bb4487.sample"]
+
+[params]
+
+force/8_bit=false
+force/mono=false
+force/max_rate=false
+force/max_rate_hz=44100
+edit/trim=false
+edit/normalize=false
+edit/loop_mode=0
+edit/loop_begin=0
+edit/loop_end=-1
+compress/mode=2
