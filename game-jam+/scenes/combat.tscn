@@ -4,12 +4,14 @@
 [ext_resource type="Theme" uid="uid://c5b8nlqewc6bd" path="res://ui/menu_theme.tres" id="2_theme"]
 [ext_resource type="Script" uid="uid://b5ga8g4bpaavj" path="res://scripts/combat/intent_icon.gd" id="3_intent"]
 [ext_resource type="Script" uid="uid://bj2r0drl08qoa" path="res://scripts/combat/target_cursor.gd" id="4_cursor"]
-[ext_resource type="PackedScene" path="res://scenes/characters/cangaceiro_sprite.tscn" id="5_player"]
-[ext_resource type="PackedScene" path="res://scenes/characters/corpo_seco_sprite.tscn" id="6_enemy"]
-[ext_resource type="Texture2D" path="res://art/bg_arena.png" id="7_bg"]
-[ext_resource type="Texture2D" path="res://art/ground_tile.png" id="8_ground"]
-[ext_resource type="Texture2D" path="res://art/ui_hud.png" id="9_hud"]
-[ext_resource type="Texture2D" path="res://art/ui_panel.png" id="10_panel"]
+[ext_resource type="PackedScene" uid="uid://y6hf1eho5adc" path="res://scenes/characters/cangaceiro_sprite.tscn" id="5_player"]
+[ext_resource type="PackedScene" uid="uid://ckf8y3bw7xkqb" path="res://scenes/characters/corpo_seco_sprite.tscn" id="6_enemy"]
+[ext_resource type="Texture2D" uid="uid://bh0qmggtsk7ya" path="res://art/bg_arena.png" id="7_bg"]
+[ext_resource type="FontFile" uid="uid://dugkosgq0y7rf" path="res://ui/xilosa_.ttf" id="7_hrcy2"]
+[ext_resource type="Texture2D" uid="uid://denkwhay1kfm8" path="res://art/ground_tile.png" id="8_ground"]
+[ext_resource type="Texture2D" uid="uid://clbos81eggac1" path="res://art/ui_hud.png" id="9_hud"]
+[ext_resource type="Texture2D" uid="uid://8ypq7nffigp2" path="res://art/ui_panel.png" id="10_panel"]
+[ext_resource type="PackedScene" uid="uid://dv55owvkiqvtf" path="res://scripts/combat_tutorial.tscn" id="12_gvie1"]
 
 [sub_resource type="StyleBoxTexture" id="Style_bottom"]
 texture = ExtResource("9_hud")
@@ -93,7 +95,8 @@ offset_bottom = 74.0
 theme_override_colors/font_color = Color(0.96, 0.9, 0.82, 1)
 theme_override_colors/font_outline_color = Color(0.1, 0.05, 0.04, 1)
 theme_override_constants/outline_size = 5
-theme_override_font_sizes/font_size = 28
+theme_override_fonts/font = ExtResource("7_hrcy2")
+theme_override_font_sizes/font_size = 35
 text = "Corpo-Seco"
 horizontal_alignment = 1
 
@@ -157,7 +160,8 @@ layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.86, 0.35, 1)
 theme_override_colors/font_outline_color = Color(0.08, 0.06, 0.05, 1)
 theme_override_constants/outline_size = 6
-theme_override_font_sizes/font_size = 40
+theme_override_fonts/font = ExtResource("7_hrcy2")
+theme_override_font_sizes/font_size = 42
 text = "8"
 vertical_alignment = 1
 
@@ -175,6 +179,10 @@ layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
+offset_left = -3.0
+offset_top = 1.0
+offset_right = -3.0
+offset_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
@@ -191,6 +199,7 @@ grow_vertical = 2
 theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_colors/font_outline_color = Color(1, 0.85, 0.3, 1)
 theme_override_constants/outline_size = 12
+theme_override_fonts/font = ExtResource("7_hrcy2")
 theme_override_font_sizes/font_size = 84
 text = "PURIFICADO!"
 horizontal_alignment = 1
@@ -243,6 +252,8 @@ custom_minimum_size = Vector2(150, 44)
 layout_mode = 2
 size_flags_horizontal = 3
 mouse_default_cursor_shape = 2
+theme_override_fonts/font = ExtResource("7_hrcy2")
+theme_override_font_sizes/font_size = 30
 text = "Atacar (1)"
 
 [node name="TecnicaButton" type="Button" parent="BottomPanel/Margin/Row/CommandPanel/Stack/MainView/CommandGrid" unique_id=1279526444]
@@ -250,6 +261,8 @@ custom_minimum_size = Vector2(150, 44)
 layout_mode = 2
 size_flags_horizontal = 3
 mouse_default_cursor_shape = 2
+theme_override_fonts/font = ExtResource("7_hrcy2")
+theme_override_font_sizes/font_size = 30
 text = "Técnica"
 
 [node name="ItemButton" type="Button" parent="BottomPanel/Margin/Row/CommandPanel/Stack/MainView/CommandGrid" unique_id=1794805770]
@@ -257,6 +270,8 @@ custom_minimum_size = Vector2(150, 44)
 layout_mode = 2
 size_flags_horizontal = 3
 mouse_default_cursor_shape = 2
+theme_override_fonts/font = ExtResource("7_hrcy2")
+theme_override_font_sizes/font_size = 30
 text = "Item"
 
 [node name="DefenderButton" type="Button" parent="BottomPanel/Margin/Row/CommandPanel/Stack/MainView/CommandGrid" unique_id=1081793092]
@@ -264,12 +279,16 @@ custom_minimum_size = Vector2(150, 44)
 layout_mode = 2
 size_flags_horizontal = 3
 mouse_default_cursor_shape = 2
+theme_override_fonts/font = ExtResource("7_hrcy2")
+theme_override_font_sizes/font_size = 30
 text = "Defender (1)"
 
 [node name="EndTurnButton" type="Button" parent="BottomPanel/Margin/Row/CommandPanel/Stack/MainView" unique_id=1905320441]
 custom_minimum_size = Vector2(0, 44)
 layout_mode = 2
 mouse_default_cursor_shape = 2
+theme_override_fonts/font = ExtResource("7_hrcy2")
+theme_override_font_sizes/font_size = 30
 text = "Terminar Turno"
 
 [node name="SubView" type="VBoxContainer" parent="BottomPanel/Margin/Row/CommandPanel/Stack" unique_id=1112223303]
@@ -282,6 +301,7 @@ theme_override_constants/separation = 6
 visible = false
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.86, 0.35, 1)
+theme_override_fonts/font = ExtResource("7_hrcy2")
 theme_override_font_sizes/font_size = 20
 text = "Técnica"
 
@@ -299,6 +319,7 @@ theme_override_constants/separation = 6
 custom_minimum_size = Vector2(0, 36)
 layout_mode = 2
 mouse_default_cursor_shape = 2
+theme_override_fonts/font = ExtResource("7_hrcy2")
 text = "Voltar"
 
 [node name="Spacer" type="Control" parent="BottomPanel/Margin/Row" unique_id=697268822]
@@ -321,19 +342,29 @@ columns = 2
 [node name="InfoName" type="Label" parent="BottomPanel/Margin/Row/InfoBox/StatusGrid" unique_id=291172301]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.95, 0.9, 0.8, 1)
-theme_override_font_sizes/font_size = 26
+theme_override_fonts/font = ExtResource("7_hrcy2")
+theme_override_font_sizes/font_size = 30
 text = "Cangaceiro"
+
+[node name="Moedas" type="Label" parent="BottomPanel/Margin/Row/InfoBox/StatusGrid" unique_id=1749039636]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.9, 0.85, 0.75, 1)
+theme_override_fonts/font = ExtResource("7_hrcy2")
+theme_override_font_sizes/font_size = 25
+text = "Moedas: 000"
 
 [node name="InfoHp" type="Label" parent="BottomPanel/Margin/Row/InfoBox/StatusGrid" unique_id=2026999952]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.9, 0.85, 0.75, 1)
-theme_override_font_sizes/font_size = 22
+theme_override_fonts/font = ExtResource("7_hrcy2")
+theme_override_font_sizes/font_size = 25
 text = "HP 100/100"
 
 [node name="InfoBlock" type="Label" parent="BottomPanel/Margin/Row/InfoBox/StatusGrid" unique_id=1138358588]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.8, 0.85, 0.95, 1)
-theme_override_font_sizes/font_size = 22
+theme_override_fonts/font = ExtResource("7_hrcy2")
+theme_override_font_sizes/font_size = 25
 text = "Bloqueio: 0"
 
 [node name="AmmoRow" type="HBoxContainer" parent="BottomPanel/Margin/Row/InfoBox/StatusGrid" unique_id=1379233462]
@@ -344,14 +375,16 @@ theme_override_constants/separation = 8
 [node name="AmmoCaption" type="Label" parent="BottomPanel/Margin/Row/InfoBox/StatusGrid/AmmoRow" unique_id=1505343308]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.9, 0.85, 0.75, 1)
-theme_override_font_sizes/font_size = 22
+theme_override_fonts/font = ExtResource("7_hrcy2")
+theme_override_font_sizes/font_size = 25
 text = "Bacamarte:"
 vertical_alignment = 1
 
 [node name="AmmoValue" type="Label" parent="BottomPanel/Margin/Row/InfoBox/StatusGrid/AmmoRow" unique_id=1417102459]
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.86, 0.35, 1)
-theme_override_font_sizes/font_size = 22
+theme_override_fonts/font = ExtResource("7_hrcy2")
+theme_override_font_sizes/font_size = 25
 text = "6/6"
 vertical_alignment = 1
 
@@ -363,7 +396,8 @@ theme_override_constants/separation = 8
 [node name="ApCaption" type="Label" parent="BottomPanel/Margin/Row/InfoBox/StatusGrid/ApRow" unique_id=460947685]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.9, 0.85, 0.75, 1)
-theme_override_font_sizes/font_size = 22
+theme_override_fonts/font = ExtResource("7_hrcy2")
+theme_override_font_sizes/font_size = 25
 text = "Ações:"
 vertical_alignment = 1
 
@@ -384,7 +418,8 @@ theme_override_constants/separation = 10
 [node name="MalCaption" type="Label" parent="BottomPanel/Margin/Row/InfoBox/MalRow" unique_id=437371630]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.9, 0.85, 0.75, 1)
-theme_override_font_sizes/font_size = 22
+theme_override_fonts/font = ExtResource("7_hrcy2")
+theme_override_font_sizes/font_size = 25
 text = "Malandragem"
 vertical_alignment = 1
 
@@ -420,7 +455,8 @@ color = Color(0.65, 0.35, 0.95, 1)
 [node name="MalValue" type="Label" parent="BottomPanel/Margin/Row/InfoBox/MalRow" unique_id=544599331]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.85, 0.7, 1, 1)
-theme_override_font_sizes/font_size = 22
+theme_override_fonts/font = ExtResource("7_hrcy2")
+theme_override_font_sizes/font_size = 25
 text = "0/100"
 vertical_alignment = 1
 
@@ -428,7 +464,6 @@ vertical_alignment = 1
 layout_mode = 0
 offset_right = 28.0
 offset_bottom = 36.0
-mouse_filter = 2
 theme_override_colors/font_color = Color(1, 0.86, 0.35, 1)
 theme_override_colors/font_outline_color = Color(0.06, 0.04, 0.03, 1)
 theme_override_constants/outline_size = 6
@@ -473,6 +508,7 @@ theme_override_constants/separation = 26
 [node name="ResultLabel" type="Label" parent="EndPanel/Center/Panel/VBox" unique_id=658934039]
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.86, 0.35, 1)
+theme_override_fonts/font = ExtResource("7_hrcy2")
 theme_override_font_sizes/font_size = 40
 text = "A Hecatombe venceu..."
 horizontal_alignment = 1
@@ -483,3 +519,11 @@ custom_minimum_size = Vector2(300, 56)
 layout_mode = 2
 size_flags_horizontal = 4
 text = "Voltar ao menu"
+
+[node name="ReturnGame" type="Button" parent="EndPanel/Center/Panel/VBox" unique_id=851299589]
+custom_minimum_size = Vector2(300, 56)
+layout_mode = 2
+text = "reiniciar a jornada"
+
+[node name="CombatTutorial" parent="." unique_id=586632289 instance=ExtResource("12_gvie1")]
+layout_mode = 1

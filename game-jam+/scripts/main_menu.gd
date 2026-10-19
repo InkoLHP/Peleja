@@ -21,6 +21,7 @@ var _buttons: Array[Button] = []
 
 
 func _ready() -> void:
+	MainSoundtrack.play_menu()
 	_buttons = [new_game_button, continue_button, quit_button]
 	_spawn_trees()
 
@@ -118,12 +119,24 @@ func _on_button_focus_changed(button: Button, focused: bool) -> void:
 
 
 func _on_new_game_pressed() -> void:
+	if SceneRouter.is_transitioning():
+		return
 	GameState.reset_run()
-	SceneRouter.go_to_map()
+	GameState.is_tutorial = true
+	GameState.current_enemy = load("res://data/enemies/corpo_seco.tres")
+	SceneRouter.go_to_combat()
 
 
 func _on_continue_pressed() -> void:
-	SceneRouter.go_to_map()
+	if SceneRouter.is_transitioning():
+		return
+	if GameState.load_game():
+		SceneRouter.go_to_map()
+	else:
+		# Missing or corrupted save: disable the button instead of opening an empty map.
+		continue_button.disabled = true
+		continue_button.focus_mode = Control.FOCUS_NONE
+		new_game_button.grab_focus()
 
 
 func _on_quit_pressed() -> void:

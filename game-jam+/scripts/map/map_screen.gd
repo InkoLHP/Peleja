@@ -30,6 +30,9 @@ const DESIGN_SIZE := Vector2(1280, 720)
 @onready var marker: Node2D = $MapLayer/Marker
 @onready var hp_label: Label = $TopBar/HBox/HpLabel
 @onready var ammo_label: Label = $TopBar/HBox/AmmoLabel
+@onready var moedas_label: Label = $TopBar/HBox/MoedasLabel
+@onready var shop_button: TextureButton = $ShopButton
+@onready var shop_popup: Control = $ShopPopup
 @onready var event_popup: Control = $EventPopup
 @onready var event_title: Label = $EventPopup/Center/Panel/VBox/Title
 @onready var event_body: Label = $EventPopup/Center/Panel/VBox/Body
@@ -45,6 +48,7 @@ var _cursor_shape := Input.CURSOR_ARROW
 
 
 func _ready() -> void:
+	MainSoundtrack.play_menu()
 	get_tree().paused = false
 	# Opened without going through the menu: start a default run so the map begins at the start.
 	GameState.ensure_run()
@@ -53,14 +57,24 @@ func _ready() -> void:
 	event_button.pressed.connect(_on_event_continue_pressed)
 	GameState.hp_changed.connect(_on_hp_changed)
 	GameState.ammo_changed.connect(_on_ammo_changed)
+	GameState.moedas_changed.connect(_on_moedas_changed)
 	_on_hp_changed(GameState.hp, GameState.max_hp)
 	_on_ammo_changed(GameState.ammo, GameState.max_ammo)
+	_on_moedas_changed(GameState.moedas)
+
+	shop_button.pressed.connect(_on_shop_pressed)
+	shop_button.mouse_entered.connect(_on_shop_hovered.bind(true))
+	shop_button.mouse_exited.connect(_on_shop_hovered.bind(false))
+	shop_popup.closed.connect(_on_shop_closed)
 
 	_build_map()
 	_fit_layer_to_viewport()
 	get_viewport().size_changed.connect(_fit_layer_to_viewport)
 	_place_marker()
 	_refresh_states()
+
+	# Autosave every time the map opens (after a fight, a rest, loading a game...).
+	GameState.save_game()
 
 
 ## The saved position is only trusted while a run is in progress and the node id exists in
@@ -158,7 +172,12 @@ func _update_selection() -> void:
 
 func _unhandled_input(event: InputEvent) -> void:
 	# The marker is walking, or an event panel / the pause menu is up: ignore everything.
-	if _busy or event_popup.visible or pause_menu.visible:
+	if _busy or event_popup.visible or pause_menu.visible or shop_popup.visible:
+		return
+	# L is the keyboard shortcut for the shop button.
+	if event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_L:
+		_on_shop_pressed()
+		get_viewport().set_input_as_handled()
 		return
 	if event is InputEventMouseMotion:
 		_update_hover(_to_map_space(event.position))
@@ -298,6 +317,8 @@ func _on_event_continue_pressed() -> void:
 		SceneRouter.go_to_combat()
 	else:
 		_refresh_states()
+		# A rest/event just finished: keep the save up to date.
+		GameState.save_game()
 
 
 func _on_hp_changed(current: int, maximum: int) -> void:
@@ -306,3 +327,26 @@ func _on_hp_changed(current: int, maximum: int) -> void:
 
 func _on_ammo_changed(current: int, maximum: int) -> void:
 	ammo_label.text = "Munição: %d/%d" % [current, maximum]
+
+
+func _on_moedas_changed(current: int) -> void:
+	moedas_label.text = "Moedas: %d" % current
+
+
+## The shop button only works while the map is idle (not walking, no other panel open).
+func _on_shop_pressed() -> void:
+	if _busy or event_popup.visible or pause_menu.visible or shop_popup.visible:
+		return
+	if SceneRouter.is_transitioning():
+		return
+	_set_cursor(false)
+	shop_popup.open()
+
+
+func _on_shop_hovered(hovered: bool) -> void:
+	shop_button.modulate = Color(1.2, 1.15, 1.05) if hovered else Color.WHITE
+
+
+func _on_shop_closed() -> void:
+	shop_button.modulate = Color.WHITE
+	_update_hover(nodes_root.get_local_mouse_position())

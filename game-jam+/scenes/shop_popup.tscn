@@ -1,0 +1,100 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/map/shop_popup.gd" id="1_shop"]
+[ext_resource type="Texture2D" path="res://art/loja.png" id="2_shopbg"]
+[ext_resource type="FontFile" uid="uid://dugkosgq0y7rf" path="res://ui/xilosa_.ttf" id="3_font"]
+
+[sub_resource type="StyleBoxFlat" id="Style_image_frame"]
+draw_center = false
+border_width_left = 4
+border_width_top = 4
+border_width_right = 4
+border_width_bottom = 4
+border_color = Color(0.84, 0.66, 0.3, 1)
+
+[node name="ShopPopup" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("1_shop")
+
+[node name="Overlay" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.6)
+
+[node name="Center" type="CenterContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Panel" type="PanelContainer" parent="Center"]
+layout_mode = 2
+
+[node name="VBox" type="VBoxContainer" parent="Center/Panel"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="Title" type="Label" parent="Center/Panel/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.86, 0.35, 1)
+theme_override_fonts/font = ExtResource("3_font")
+theme_override_font_sizes/font_size = 40
+text = "Loja"
+horizontal_alignment = 1
+
+[node name="Scene" type="TextureRect" parent="Center/Panel/VBox"]
+custom_minimum_size = Vector2(720, 403)
+layout_mode = 2
+size_flags_horizontal = 4
+mouse_filter = 2
+texture = ExtResource("2_shopbg")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Frame" type="Panel" parent="Center/Panel/VBox/Scene"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("Style_image_frame")
+
+[node name="SoonLabel" type="Label" parent="Center/Panel/VBox/Scene"]
+layout_mode = 1
+anchors_preset = -1
+anchor_top = 0.12
+anchor_right = 0.8
+anchor_bottom = 0.5
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_colors/font_color = Color(1, 0.86, 0.35, 1)
+theme_override_colors/font_outline_color = Color(0.1, 0.05, 0.02, 1)
+theme_override_constants/outline_size = 10
+theme_override_fonts/font = ExtResource("3_font")
+theme_override_font_sizes/font_size = 64
+text = "EM BREVE"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="CloseButton" type="Button" parent="Center/Panel/VBox"]
+custom_minimum_size = Vector2(260, 52)
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_fonts/font = ExtResource("3_font")
+theme_override_font_sizes/font_size = 32
+text = "Fechar loja"

@@ -14,6 +14,8 @@ const SPRITE_HEIGHT := 256.0
 
 
 func _ready() -> void:
+	# The journey is over: "Continuar" must not drop the player back into the boss fight.
+	GameState.delete_save()
 	again_button.pressed.connect(_on_again_pressed)
 	menu_button.pressed.connect(_on_menu_pressed)
 	stats.text = "Vida restante: %d/%d   ·   Locais percorridos: %d" % [
@@ -44,6 +46,8 @@ func _play_intro() -> void:
 
 func _on_again_pressed() -> void:
 	GameState.reset_run()
+	# The player already knows how to fight: do not replay the tutorial.
+	GameState.is_tutorial = false
 	SceneRouter.go_to_map()
 
 
